@@ -1,6 +1,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <cstring>
 #include <chip_8.hpp>
 
 const unsigned int FONTSET_SIZE = 80; // 16 chars * 5 bytes = 80 byte array
@@ -12,11 +13,11 @@ const unsigned int FONTSET_ADDRESS = 0x50; // Address of the fontset (within the
  * hexadecimal numbers, where a 1 represents a pixel that
  * is on, and a 0 represents a pixel that is off.
  * Ex. for zero (0xF0, 0x90, 0x90, 0x90, 0xF0)
- * 1111 0000 // 0xF0
- * 1001 0000 // 0x90
- * 1001 0000 // 0x90
- * 1001 0000 // 0x90
- * 1111 0000 // 0xF0
+ * 1111 0000 // 0xF0 ****
+ * 1001 0000 // 0x90 *  *
+ * 1001 0000 // 0x90 *  *
+ * 1001 0000 // 0x90 *  *
+ * 1111 0000 // 0xF0 ****
 */
 
 uint8_t fontset[FONTSET_SIZE] = {
@@ -73,4 +74,179 @@ void Chip8::LoadROM(const char* filename) {
         delete[] rom_buffer;
     }
 }
+
+/**
+ * OPCODES!
+ * The CHIP-8 *only* has 34 opcodes, which are implemented below.
+ */
+
+// CLS: Clear the display
+void Chip8::OP_00E0() { 
+    memset(video, 0, sizeof(video)); // CLS: Set the entire video buffer to zero (clear the screen!)
+} 
+
+// RET: Return from a subroutine
+void Chip8::OP_00EE() {
+
+}
+
+// JP addr: Jump to location nnn
+void Chip8::OP_1nnn() {
+
+}
+
+// CALL addr: Call subroutine at nnn
+void Chip8::OP_2nnn() {
+
+} 
+
+// SE Vx, byte: Skip next instruction if Vx == kk
+void Chip8::OP_3xkk() {
+
+} 
+
+// SNE Vx, byte: Skip next instruction if Vx != kk
+void Chip8::OP_4xkk() {
+
+}
+
+// SE Vx, Vy: Skip next instruction if Vx == Vy
+void Chip8::OP_5xy0(){
+
+} 
+
+// LD Vx, byte: Set Vx = kk
+void Chip8::OP_6xkk() {
+
+} 
+
+// ADD Vx, byte: Set Vx = Vx + kk
+void Chip8::OP_7xkk() {
+
+} 
+
+// LD Vx, Vy: Set Vx = Vy
+void Chip8::OP_8xy0() {
+
+} 
+
+// OR Vx, Vy: Set Vx = Vx OR Vy
+void Chip8::OP_8xy1() {
+
+} 
+
+// AND Vx, Vy: Set Vx = Vx AND 
+void Chip8::OP_8xy2() {
+
+} 
+
+// XOR Vx, Vy: Set Vx = Vx XOR Vy
+void Chip8::OP_8xy3() {
+
+} 
+
+// ADD Vx, Vy: Set Vx = Vx + Vy, set VF = carry. (VF is overflow flag)
+void Chip8::OP_8xy4() {
+
+} 
+
+// SUB Vx, Vy: Set Vx = Vx - Vy, set VF = carry. (VF is underflow flag)
+void Chip8::OP_8xy5() {
+
+} 
+
+// SHR Vx: Set Vx = Vx SHR 1. (Right shift, save remainder in VF)
+void Chip8::OP_8xy6() {
+
+} 
+
+// SUBN Vx, Vy: Set Vx = Vy - Vx, set VF = NOT borrow
+void Chip8::OP_8xy7() {
+
+} 
+
+// SHL Vx {, Vy}: Set Vx = Vx SHL 1. (Left shift, save MSB in VF)
+void Chip8::OP_8xyE() {
+
+} 
+
+// SNE Vx, Vy: Skip next instruction if Vx != Vy
+void Chip8::OP_9xy0() {
+
+} 
+
+// LD I, addr: Set I = nnn
+void Chip8::OP_Annn() {
+
+} 
+
+// JP V0, addr: Jump to location nnn + V0
+void Chip8::OP_Bnnn() {
+
+}
+
+// RND Vx, byte: Set Vx = random byte AND kk
+void Chip8::OP_Cxkk() {
+
+} 
+
+// DRW Vx, Vy, nibble: Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+void Chip8::OP_Dxyn() {
+
+} 
+
+// SKP Vx: Skip next instruction if key with the value of Vx is pressed
+void Chip8::OP_Ex9E() {
+
+} 
+
+// SKNP Vx: Skip next instruction if key with the value of Vx is NOT pressed
+void Chip8::OP_ExA1() {
+
+} 
+
+// LD Vx, DT: Set Vx = delay timer value
+void Chip8::OP_Fx07() {
+
+} 
+
+// LD Vx,K: Wait for a key press, store the value of the key in Vx
+void Chip8::OP_Fx0A() {
+
+} 
+
+// LD DT, Vx: Set delay timer = Vx
+void Chip8::OP_Fx15() {
+
+} 
+
+// LD ST, Vx: Set sound timer = Vx
+void Chip8::OP_Fx18() {
+
+} 
+
+// ADD I, Vx: Set I = I + Vx
+void Chip8::OP_Fx1E() {
+
+} 
+
+// LD F, Vx: Set I = location of sprite for digit Vx
+void Chip8::OP_Fx29() {
+
+} 
+
+// LD B, Vx: Store BCD representation of Vx in memory locations I, I+1, and I+2
+void Chip8::OP_Fx33() {
+
+} 
+
+// LD [I], Vx: Store registers V0 through Vx in memory starting at location I
+void Chip8::OP_Fx55() {
+
+} 
+
+// LD Vx, [I]: Read registers V0 through Vx in memory starting at location I
+void Chip8::OP_Fx65() {
+
+} 
 
