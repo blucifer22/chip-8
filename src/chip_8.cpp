@@ -117,42 +117,70 @@ void Chip8::OP_3xkk() {
 
 // SNE Vx, byte: Skip next instruction if Vx != kk
 void Chip8::OP_4xkk() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse register number using bitmask
+	uint8_t byte = opcode & 0x00FFu; // Parse byte using bitmask
 
+	if (registers[Vx] != byte) { // If the value at register Vx != the byte in question
+		pc += 2; // Skip the next instruction (increment PC by *TWO*)
+	}
 }
 
 // SE Vx, Vy: Skip next instruction if Vx == Vy
 void Chip8::OP_5xy0(){
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    if(registers[Vx] == registers[Vy]) { // If the value at register Vx == value at register Vy
+        pc += 2; // Skip the next instruction
+    }
 } 
 
 // LD Vx, byte: Set Vx = kk
 void Chip8::OP_6xkk() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse register number using bitmask
+	uint8_t byte = opcode & 0x00FFu; // Parse byte using bitmask
 
+    registers[Vx] = byte; // Set the value at Vx equal to the byte
 } 
 
 // ADD Vx, byte: Set Vx = Vx + kk
 void Chip8::OP_7xkk() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse register number using bitmask
+	uint8_t byte = opcode & 0x00FFu; // Parse byte using bitmask
 
+    registers[Vx] += byte; // Set the Vx = Vx + byte
 } 
 
 // LD Vx, Vy: Set Vx = Vy
 void Chip8::OP_8xy0() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    registers[Vx] = registers[Vx]; // Set Vx = Vy
 } 
 
 // OR Vx, Vy: Set Vx = Vx OR Vy
 void Chip8::OP_8xy1() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    registers[Vx] |= registers[Vx]; // Set Vx |= Vy
 } 
 
 // AND Vx, Vy: Set Vx = Vx AND 
 void Chip8::OP_8xy2() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    registers[Vx] &= registers[Vx]; // Set Vx &= Vy
 } 
 
 // XOR Vx, Vy: Set Vx = Vx XOR Vy
 void Chip8::OP_8xy3() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    registers[Vx] ^= registers[Vx]; // Set Vx ^= Vy
 } 
 
 // ADD Vx, Vy: Set Vx = Vx + Vy, set VF = carry. (VF is overflow flag)
