@@ -1,4 +1,6 @@
 #include <fstream>
+#include <chrono>
+#include <random>
 #include <chip_8.hpp>
 
 const unsigned int FONTSET_SIZE = 80; // 16 chars * 5 bytes = 80 byte array
@@ -36,8 +38,10 @@ uint8_t fontset[FONTSET_SIZE] = {
 		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-Chip8::Chip8() {
-    pc = START_ADDRESS; // Inialize the PC
+Chip8::Chip8() 
+: rand_gen(std::chrono::system_clock::now().time_since_epoch().count()){
+    pc = START_ADDRESS; // Initialize the PC
+    randByte = std::uniform_int_distribution<uint8_t>(0, 255U); // Initialize the RNG
 
     // Load the fontset into memory
     for(int i = 0; i < FONTSET_SIZE; i++) {

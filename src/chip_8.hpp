@@ -31,4 +31,7 @@ class Chip8 {
         uint32_t video[64 * 32]{}; // Display buffer
         uint16_t opcode;
 
+        std::default_random_engine rand_gen; // Create a member variable for our RNG engine
+        std::uniform_int_distribution<uint8_t> randByte; // Create a member variable for an RNG output
+
 };
