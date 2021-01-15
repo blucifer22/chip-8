@@ -34,12 +34,25 @@ class Chip8 {
         std::default_random_engine rand_gen; // Create a member variable for our RNG engine
         std::uniform_int_distribution<uint8_t> randByte; // Create a member variable for an RNG output
 
+        void Table0();
+        void Table8();
+        void TableE();
+        void TableF();
+
+        typedef void (Chip8::*Chip8Func)();
+        Chip8Func table[0xF + 1]{&Chip8::OP_NULL};
+        Chip8Func table0[0xE + 1]{&Chip8::OP_NULL};
+        Chip8Func table8[0xE + 1]{&Chip8::OP_NULL};
+        Chip8Func tableE[0xE + 1]{&Chip8::OP_NULL};
+        Chip8Func tableF[0x65 + 1]{&Chip8::OP_NULL};
+
         /**
          * OPCODES!
          * The CHIP-8 *only* has 34 opcodes, which are enumerated and described below.
          * The actual implementation of each opcode is in chip_8.cpp
          */
-
+    
+        void OP_NULL(); // NULL: Do nothing (Catch-all if the table gets clobbered)
         void OP_00E0(); // CLS: Clear the display
         void OP_00EE(); // RET: Return from a subroutine
         void OP_1nnn(); // JP addr: Jump to location nnn
