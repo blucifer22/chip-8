@@ -13,9 +13,12 @@ const unsigned int VIDEO_WIDTH = 64;
 
 class Chip8 {
     public:
-        Chip8();
-        void LoadROM(const char* filename);
+        uint8_t keypad[16]{}; // Store our keypad mappings
+        uint32_t video[64 * 32]{}; // Display buffer
 
+        Chip8(); // Prototype for constructor
+        void LoadROM(const char* filename); // Prototype for ROM loader
+        void Cycle(); // Prototype for cycler
 
     private:
         // Define the specifications of our CHIP-8 Machine
@@ -27,13 +30,12 @@ class Chip8 {
         uint8_t sp{}; // 8-bit stack pointer (where we are on the stack)
         uint8_t delay_timer{}; // 8-bit delay_timer (counts down at 60 Hz)
         uint8_t sound_timer{}; // 8-bit sound_timer (counts down at 60 Hz) TODO: Implement sound in SDL2
-        uint8_t keypad[16]{}; // Store our keypad mappings
-        uint32_t video[64 * 32]{}; // Display buffer
         uint16_t opcode;
 
         std::default_random_engine rand_gen; // Create a member variable for our RNG engine
         std::uniform_int_distribution<uint8_t> randByte; // Create a member variable for an RNG output
 
+        // Define prototypes for our table functions
         void Table0();
         void Table8();
         void TableE();

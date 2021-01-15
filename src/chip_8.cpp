@@ -50,7 +50,7 @@ Chip8::Chip8()
     }
 
     // Set up function pointer table
-    table[0x0] = &Chip8::Table0;
+    table[0x0] = &Chip8::Table0; // Redirect to Table0
     table[0x1] = &Chip8::OP_1nnn;
     table[0x2] = &Chip8::OP_2nnn;
     table[0x3] = &Chip8::OP_3xkk;
@@ -58,14 +58,14 @@ Chip8::Chip8()
     table[0x5] = &Chip8::OP_5xy0;
     table[0x6] = &Chip8::OP_6xkk;
     table[0x7] = &Chip8::OP_7xkk;
-    table[0x8] = &Chip8::Table8;
+    table[0x8] = &Chip8::Table8; // Redirect to Table8
     table[0x9] = &Chip8::OP_9xy0;
     table[0xA] = &Chip8::OP_Annn;
     table[0xB] = &Chip8::OP_Bnnn;
     table[0xC] = &Chip8::OP_Cxkk;
     table[0xD] = &Chip8::OP_Dxyn;
-    table[0xE] = &Chip8::TableE;
-    table[0xF] = &Chip8::TableF;
+    table[0xE] = &Chip8::TableE; // Redirect to TableE
+    table[0xF] = &Chip8::TableF; // Redirect to TableF
 
     table0[0x0] = &Chip8::OP_00E0;
     table0[0xE] = &Chip8::OP_00EE;
@@ -116,6 +116,22 @@ void Chip8::LoadROM(const char* filename) {
 
         // Free the buffer
         delete[] rom_buffer;
+    }
+}
+
+void Chip8::Cycle() { // Define the CPU cycle loop! (Fetch, Decode, Execute)
+	opcode = (memory[pc] << 8u) | memory[pc + 1];  // Fetch
+
+    pc += 2; // Increment the PC before we do anything else!
+
+	((*this).*(table[(opcode & 0xF000u) >> 12u]))(); // Decode and Execute
+
+    if(delay_timer > 0) { // Decrement the delay timer if it has been set
+        delay_timer--;
+    }
+
+    if(sound_timer > 0) { // Decrement the sound timer if it has been set
+        sound_timer--;
     }
 }
 
@@ -240,7 +256,7 @@ void Chip8::OP_8xy1() {
     uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
     uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
-    registers[Vx] |= registers[Vx]; // Set Vx |= Vy
+    registers[Vx] |= registers[Vy]; // Set Vx |= Vy
 } 
 
 // AND Vx, Vy: Set Vx = Vx AND 
@@ -248,7 +264,7 @@ void Chip8::OP_8xy2() {
     uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
     uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
-    registers[Vx] &= registers[Vx]; // Set Vx &= Vy
+    registers[Vx] &= registers[Vy]; // Set Vx &= Vy
 } 
 
 // XOR Vx, Vy: Set Vx = Vx XOR Vy
@@ -256,7 +272,7 @@ void Chip8::OP_8xy3() {
     uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
     uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
-    registers[Vx] ^= registers[Vx]; // Set Vx ^= Vy
+    registers[Vx] ^= registers[Vy]; // Set Vx ^= Vy
 } 
 
 // ADD Vx, Vy: Set Vx = Vx + Vy, set VF = carry. (VF is overflow flag)
