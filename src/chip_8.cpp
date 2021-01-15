@@ -241,27 +241,43 @@ void Chip8::OP_8xy7() {
 
 // SHL Vx {, Vy}: Set Vx = Vx SHL 1. (Left shift, save MSB in VF)
 void Chip8::OP_8xyE() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    registers[0xF] = (registers[Vx] & 0x80u) >> 7u; // Save the MSB to VF
+
+    registers[Vx] <<= 1; // Left shift 1 (AKA: Multiply by two)
 } 
 
 // SNE Vx, Vy: Skip next instruction if Vx != Vy
 void Chip8::OP_9xy0() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    if(registers[Vx] != registers[Vy]) { // If the value at register Vx != value at register Vy
+        pc += 2; // Skip the next instruction
+    }
 } 
 
 // LD I, addr: Set I = nnn
 void Chip8::OP_Annn() {
+    uint16_t address = opcode &= 0x0FFFu; // Parse the address using bitmask
 
+    index = address; // Set the index register equal to the address
 } 
 
 // JP V0, addr: Jump to location nnn + V0
 void Chip8::OP_Bnnn() {
+    uint16_t address = opcode &= 0x0FFFu; // Parse the address using bitmask
 
+    pc = registers[0] + address; // Set the PC to V0 + address
 }
 
 // RND Vx, byte: Set Vx = random byte AND kk
 void Chip8::OP_Cxkk() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t byte = opcode & 0x00FFu; // Parse the byte
 
+    registers[Vx] = randByte(rand_gen) & byte; // Set Vx = randByte & byte
 } 
 
 // DRW Vx, Vy, nibble: Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
