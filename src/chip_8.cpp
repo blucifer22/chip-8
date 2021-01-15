@@ -185,22 +185,58 @@ void Chip8::OP_8xy3() {
 
 // ADD Vx, Vy: Set Vx = Vx + Vy, set VF = carry. (VF is overflow flag)
 void Chip8::OP_8xy4() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    uint16_t sum = registers[Vx] + registers[Vy]; // Add the registers Vx and Vy
+
+    if(sum > 255U) { // If the sum overflows an 8-bit register
+        registers[0xF] = 1; // Set the flag register (VF) to 1
+    } 
+    else {
+        registers[0xF] = 0; // Set the flag register (VF) to 0
+    }
+
+    registers[Vx] = sum & 0xFFu; // Bitmask off the last 8-bits of sum and save them to Vx
 } 
 
 // SUB Vx, Vy: Set Vx = Vx - Vy, set VF = carry. (VF is underflow flag)
 void Chip8::OP_8xy5() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    if(registers[Vx] > registers[Vy]) { // If Vx > Vy
+        registers[0xF] = 1; // Set the flag register (VF) to 1
+    } 
+    else {
+        registers[0xF] = 0; // Set the flag register (VF) to 0
+    }
+
+    registers[Vx] -= registers[Vy]; // Vx = Vx - Vy
 } 
 
 // SHR Vx: Set Vx = Vx SHR 1. (Right shift, save remainder in VF)
 void Chip8::OP_8xy6() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    registers[0xF] = (registers[Vx] & 0x1u); // Save the LSB to VF
+
+    registers[Vx] >>= 1; // Right shift 1 (AKA: Divide by two)
 } 
 
 // SUBN Vx, Vy: Set Vx = Vy - Vx, set VF = NOT borrow
 void Chip8::OP_8xy7() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
 
+    if(registers[Vy] > registers[Vx]) { // If Vy > Vx
+        registers[0xF] = 1; // Set the flag register (VF) to 1
+    } 
+    else {
+        registers[0xF] = 0; // Set the flag register (VF) to 0
+    }
+
+    registers[Vx] = registers[Vy] - registers[Vx]; // Vx = Vy - Vx
 } 
 
 // SHL Vx {, Vy}: Set Vx = Vx SHL 1. (Left shift, save MSB in VF)
