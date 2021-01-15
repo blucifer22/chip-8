@@ -422,21 +422,45 @@ void Chip8::OP_Fx1E() {
 
 // LD F, Vx: Set I = location of sprite for digit Vx
 void Chip8::OP_Fx29() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    uint8_t digit = registers[Vx]; // Get the digit at Vx
+
+    index = FONTSET_ADDRESS + (5 * digit); // Set the index to the right digit within the fontset (digits are 5 bytes each)
 } 
 
 // LD B, Vx: Store BCD representation of Vx in memory locations I, I+1, and I+2
 void Chip8::OP_Fx33() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    uint8_t value = registers[Vx]; // Get the value at Vx
+
+    // Ones place
+    memory[index + 2] = value % 10;
+    value /= 10;
+
+    // Tens place
+    memory[index + 1] = value % 10;
+    value /= 10;
+
+    // Hundreds place
+    memory[index] = value % 10; 
 } 
 
 // LD [I], Vx: Store registers V0 through Vx in memory starting at location I
 void Chip8::OP_Fx55() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    for (uint8_t i = 0; i <= Vx; i++) { // For each register from V0 through Vx (INCLUSIVE!!!)
+        memory[index + i] = registers[i]; // Set the memory at index + i to the current value of the register
+    }
 } 
 
 // LD Vx, [I]: Read registers V0 through Vx in memory starting at location I
 void Chip8::OP_Fx65() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    for (uint8_t i = 0; i <= Vx; i++) { // For each register from V0 through Vx (INCLUSIVE!!!)
+        registers[i] = memory[index + i]; // Read the memory at index + i to the respective register
+    }
 } 
-
