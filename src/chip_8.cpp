@@ -282,42 +282,142 @@ void Chip8::OP_Cxkk() {
 
 // DRW Vx, Vy, nibble: Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
 void Chip8::OP_Dxyn() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
+	uint8_t Vy = (opcode & 0x00F0u) >> 4u; // Parse Vy reg number using bitmask
+	uint8_t height = opcode & 0x000Fu; // Parse height using bitmask
 
+    // Wrap if we go beyond the screen boundaries!
+    uint8_t x_pos = registers[Vx] % VIDEO_WIDTH;
+    uint8_t y_pos = registers[Vy] % VIDEO_HEIGHT;
+
+    registers[0xF] = 0; // Set VF = 0
+
+    for(unsigned int row = 0; row < height; row++) { // Iterate over each row of the sprite
+
+        uint8_t sprite_byte = memory[index + row]; // Access the current sprite byte
+
+        for(unsigned int col = 0; col < 8; col++) { // Iterate over each bit (pixel) of the current sprite byte
+           
+            uint8_t sprite_pixel = sprite_byte & (0x80u >> col); // Get the current sprite pixel with bitmask
+            uint32_t* screen_pixel = &video[(y_pos + row) * VIDEO_WIDTH + (x_pos + col)]; // Get a pointer to the current screen pixel
+
+            if(sprite_pixel) { // If the sprite pixel is on
+
+                if(*screen_pixel == 0xFFFFFFFF) { // If the screen pixel is already on (value at pointer == 0xFFFFFFFF)
+                    registers[0xF] = 1; // Set the flag register (VF) to 1, indicating collision!
+                }
+
+                *screen_pixel ^= 0xFFFFFFFF; // Functionally XOR the screen pixel with the sprite pixel
+            }
+        }
+    }
 } 
 
 // SKP Vx: Skip next instruction if key with the value of Vx is pressed
 void Chip8::OP_Ex9E() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+	uint8_t key = registers[Vx]; // Find the expected key value
+
+	if (keypad[key]) { // If that key is pressed
+		pc += 2; // Skip the next instruction
+	}
 } 
 
 // SKNP Vx: Skip next instruction if key with the value of Vx is NOT pressed
 void Chip8::OP_ExA1() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+	uint8_t key = registers[Vx]; // Find the expected key value
+
+	if (!keypad[key]) { // If that key is NOT pressed
+		pc += 2; // Skip the next instruction
+	}
 } 
 
 // LD Vx, DT: Set Vx = delay timer value
 void Chip8::OP_Fx07() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    registers[Vx] = delay_timer; // Set Vx = delay_timer
 } 
 
 // LD Vx,K: Wait for a key press, store the value of the key in Vx
 void Chip8::OP_Fx0A() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    if(keypad[0]) { // If zero is pressed on the keypad
+        registers[Vx] = 0; // Vx = 0
+    }
+    else if(keypad[1]) { // If one is pressed on the keypad
+        registers[Vx] = 1; // Vx = 1...and so on
+    }
+    else if(keypad[2]) {
+        registers[Vx] = 2;
+    }
+    else if(keypad[3]) {
+        registers[Vx] = 3;
+    }
+    else if(keypad[4]) {
+        registers[Vx] = 4;
+    }
+    else if(keypad[5]) {
+        registers[Vx] = 5;
+    }
+    else if(keypad[6]) {
+        registers[Vx] = 6;
+    }
+    else if(keypad[7]) {
+        registers[Vx] = 7;
+    }
+    else if(keypad[8]) {
+        registers[Vx] = 8;
+    }
+    else if(keypad[9]) {
+        registers[Vx] = 9;
+    }
+    else if(keypad[10]) {
+        registers[Vx] = 10;
+    }
+    else if(keypad[11]) {
+        registers[Vx] = 11;
+    }
+    else if(keypad[12]) {
+        registers[Vx] = 12;
+    }
+    else if(keypad[13]) {
+        registers[Vx] = 13;
+    }
+    else if(keypad[14]) {
+        registers[Vx] = 14;
+    }
+    else if(keypad[15]) {
+        registers[Vx] = 15;
+    }
+    else {
+        pc -= 2; // Easiest way to wait is to just decrement the PC by two until a key is pressed!
+    }
 } 
 
 // LD DT, Vx: Set delay timer = Vx
 void Chip8::OP_Fx15() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    delay_timer = registers[Vx]; // Set delay_timer = Vx
 } 
 
 // LD ST, Vx: Set sound timer = Vx
 void Chip8::OP_Fx18() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    sound_timer = registers[Vx]; // Set sound_timer = Vx
 } 
 
 // ADD I, Vx: Set I = I + Vx
 void Chip8::OP_Fx1E() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u; // Parse Vx reg number using bitmask
 
+    index = index + registers[Vx]; // Set index = index + Vx
 } 
 
 // LD F, Vx: Set I = location of sprite for digit Vx
